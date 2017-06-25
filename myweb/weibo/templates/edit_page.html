@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form action="{%url 'weibo:edit_action'%}" method="post">
+{% csrf_token %}
+        <input type="hidden" value="{{article.id|default:'0'}}" name="article_id"/>
+        <label>标题
+            <input type="text" name="title" value="{{article.title}}"/>
+        </label>
+        <br>
+        <br>
+         <label>内容
+            <textarea name="content">{{article.content}}</textarea>
+        </label>
+        <br>
+        <input type="submit" value="提交">
+</form>
+</body>
+</html>

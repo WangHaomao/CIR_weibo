@@ -1,0 +1,195 @@
+{% extends "cirweibo/model.html" %}
+{% block head %}
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>社交网络数据分析系统--年分析图</title>
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<!-- Bootstrap 3.3.6 -->
+<link rel="stylesheet" href="../../static/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="../../static/style/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="../../static/plugins/iCheck/flat/blue.css">
+<link rel="stylesheet" href="../../static/plugins/datatables/dataTables.bootstrap.css">
+<link rel="stylesheet" href="../../static/plugins/daterangepicker/daterangepicker.css">
+<link rel="stylesheet" href="../../static/plugins/select2/select2.min.css">
+<link rel="stylesheet" href="../../static/dist/css/AdminLTE.min.css">
+<link rel="stylesheet" href="../../static/dist/css/skins/_all-skins.min.css">
+<style>
+
+    .col-center-block {
+         float: none;
+         display: block;
+         margin-left: auto;
+         margin-right: auto;
+    }
+
+</style>
+
+</head>
+{% endblock %}
+{% block maincontent %}
+<div style="width:100%;height:100%;">
+  <div class="box box-primary">
+    <div class="box-header">
+      <h3 class="box-title">{{city_name}}流感爆发月数分析图</h3>
+    </div>
+    <div class="box-body">
+        <form class="form-group" method="post" action="{%url 'weibo:linechart_action'%}">
+            {% csrf_token %}
+            <label>年份、地区</label>
+            <table class="table table-bordered table-striped">
+                  <tbody>
+                    <tr>
+                      <th>
+                          <!--<h1>{{hello}}</h1>-->
+                        <select class="form-control" name="data_year">
+                          <!--<option value="option1">2017</option>-->
+                          <option value="option1">2016</option>
+                          <option value="option1">2015</option>
+                            <option value="option1">2014</option>
+                            <option value="option1">2013</option>
+                            <option value="option1">2012</option>
+                        </select>
+                      </th>
+                        <th>
+                          <!--<h1>{{hello}}</h1>-->
+                        <select class="form-control" name="data_city">
+                          <!--<option value="option1">2017</option>-->
+                          <option value="option1">上海</option>
+                          <option value="option1">浙江</option>
+                            <option value="option1">河南</option>
+                            <option value="option1">广西</option>
+                            <option value="option1">甘肃</option>
+                        </select>
+                      </th>
+                        <td>
+                         <button type="submit" class="btn btn-primary pull-right">确认</button>
+                        </td>
+                    </tr>
+                  </tbody>
+            </table>
+        </form>
+
+        <label>数据显示</label>
+        <!--<table class="table table-bordered table-striped">-->
+                  <!--<tbody>-->
+                    <!--<tr>-->
+
+    <div id="main" style="width:80%;height:400px;"></div>
+                    <!--</tr>-->
+                  <!--</tbody>-->
+            <!--</table>-->
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+<script src="../../static/plugins/jQuery/jquery-2.2.3.min.js"></script>
+<script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+<script src="../../static/dist/js/app.min.js"></script>
+<script src="../../static/dist/js/demo.js"></script>
+
+<script src="../../static/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="../../static/plugins/datatables/dataTables.bootstrap.min.js"></script>
+<script src="../../static/plugins/select2/select2.full.min.js"></script>
+
+<script src="../../static/plugins/bootstrap3-editable/js/moment.js"></script>
+<script src="../../static/plugins/daterangepicker/daterangepicker.js"></script>
+
+<script src="../../static/dist/echarts.js"></script>
+<script type="text/javascript">
+// 基于准备好的dom，初始化echarts实例
+var myChart = echarts.init(document.getElementById('main'));
+
+
+option = {
+    title: {
+        text: '2016年{{city_name}}流感爆发与CDC流感数据走势',
+        subtext: '纯属虚构'
+    },
+    tooltip: {
+        trigger: 'axis'
+    },
+    legend: {
+        data:['微博数据','CDC数据']
+    },
+    toolbox: {
+        show: true,
+        feature: {
+            dataZoom: {
+                yAxisIndex: 'none'
+            },
+            dataView: {readOnly: false},
+            magicType: {type: ['line', 'bar']},
+            restore: {},
+            saveAsImage: {}
+        }
+    },
+    xAxis:  {
+        type: 'category',
+        boundaryGap: false,
+        data: ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']
+    },
+    yAxis: {
+        type: 'value',
+        axisLabel: {
+            formatter: '{value}'
+        }
+    },
+    series: [
+        {
+            name:'微博数据',
+            type:'line',
+            //data:[15, 26, 23, 15, 10, 12, 10, 13, 13,10,12,22],
+            {{data_pro|safe}}
+            markPoint: {
+                data: [
+                    {type: 'max', name: '最大值'},
+                    {type: 'min', name: '最小值'}
+                ]
+            },
+            markLine: {
+                data: [
+                    {type: 'average', name: '平均值'}
+                ]
+            }
+        },
+        {
+            name:'CDC数据',
+            type:'line',
+            //data:[17.9, 24.3, 58.8, 36.6, 13.8, 7.7, 5.75, 6.05, 8.62,10.1,16,29.5],
+            {{data_cdc|safe}}
+            markPoint: {
+                data: [
+                    {name: '周最低', value: -2, xAxis: 1, yAxis: -1.5}
+                ]
+            },
+            markLine: {
+                data: [
+                    {type: 'average', name: '平均值'},
+                    [{
+                        symbol: 'none',
+                        x: '90%',
+                        yAxis: 'max'
+                    }, {
+                        symbol: 'circle',
+                        label: {
+                            normal: {
+                                position: 'start',
+                                formatter: '最大值'
+                            }
+                        },
+                        type: 'max',
+                        name: '最高点'
+                    }]
+                ]
+            }
+        }
+    ]
+};
+
+myChart.setOption(option);
+</script>
+
+
+{% endblock %}

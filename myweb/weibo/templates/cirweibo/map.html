@@ -1,0 +1,334 @@
+{% extends "cirweibo/model.html" %}
+{% block head %}
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>社交网络数据分析系统--地图后台</title>
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<!-- Bootstrap 3.3.6 -->
+<link rel="stylesheet" href="../../static/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="../../static/style/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="../../static/plugins/iCheck/flat/blue.css">
+<link rel="stylesheet" href="../../static/plugins/datatables/dataTables.bootstrap.css">
+<link rel="stylesheet" href="../../static/plugins/daterangepicker/daterangepicker.css">
+<link rel="stylesheet" href="../../static/plugins/select2/select2.min.css">
+<link rel="stylesheet" href="../../static/dist/css/AdminLTE.min.css">
+<link rel="stylesheet" href="../../static/dist/css/skins/_all-skins.min.css">
+<meta charset="UTF-8">
+<title>
+    ECharts map Demo
+</title>
+
+</head>
+{% endblock %}
+{% block maincontent %}
+<div style="width:100%;height:100%;">
+  <div class="box box-primary">
+    <div class="box-header">
+      <h3 class="box-title">某时间段内全国流感暴发人数</h3>
+    </div>
+    <div class="box-body">
+        <form class="form-group" method="post" action="{%url 'weibo:map_action'%}">
+            {% csrf_token %}
+            <label>时间段</label>
+            <table class="table table-bordered table-striped">
+                  <tbody>
+                    <tr>
+                      <th>
+                          <div class="form-group" style="margin-bottom:0px;">
+                            <div class="input-group">
+                              <div class="input-group-addon">
+                                <i class="fa fa-clock-o"></i>
+                              </div>
+                              <input type="text" class="form-control pull-right" id="reservationtime" name="data_range">
+                            </div>
+                            <!-- /.input group -->
+                          </div>
+                      </th>
+                        <td>
+                            <input type="hidden" value="-1" name="city_message" id="city_message"/>
+                         <button type="submit" class="btn btn-primary pull-right" id="submit_button">确认</button>
+                        </td>
+                    </tr>
+                  </tbody>
+            </table>
+        </form>
+
+        <label>数据显示</label>
+        <table class="table table-bordered table-striped">
+                  <tbody>
+                    <tr>
+
+        <div id="main" style="height:500px; width:auto;"></div>
+                    </tr>
+                  </tbody>
+            </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+<script src="../../static/plugins/jQuery/jquery-2.2.3.min.js"></script>
+<script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+<script src="../../static/dist/js/app.min.js"></script>
+<script src="../../static/dist/js/demo.js"></script>
+
+<script src="../../static/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="../../static/plugins/datatables/dataTables.bootstrap.min.js"></script>
+<script src="../../static/plugins/select2/select2.full.min.js"></script>
+
+<script src="../../static/plugins/bootstrap3-editable/js/moment.js"></script>
+<script src="../../static/plugins/daterangepicker/daterangepicker.js"></script>
+
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=百度地图AK"></script>
+
+<script src="../../static/dist/echarts.js"></script>
+<!-- 引入百度地图扩展 -->
+<script src="../../static/dist/extension/bmap.min.js"></script>
+
+<script>
+var myChart = echarts.init(document.getElementById('main'));
+{{ data|safe }}
+var geoCoordMap = {
+    '青岛':[120.33,36.07],
+    '西藏':[91.11,29.97],
+    '上海':[121.48,31.22],
+    '福建':[118.1,24.46],
+    '广西':[110.28,25.29],
+    '广东':[113.23,23.16],
+    '山西':[112.53,37.87],
+    '云南':[102.73,25.04],
+    '辽宁':[123.38,41.8],
+    '宁夏':[106.27,38.47],
+    '江西':[115.89,28.68],
+    '吉林':[125.35,43.88],
+    '青海':[101.74,36.56],
+    '内蒙古':[111.65,40.82],
+    '四川':[104.06,30.67],
+    '陕西':[108.95,34.27],
+    '重庆':[106.54,29.59],
+    '江苏':[118.78,32.04],
+    '贵阳':[106.71,26.57],
+    '北京':[116.46,39.92],
+    '新疆':[87.68,43.77],
+    '浙江':[120.19,30.26],
+    '山东':[117,36.65],
+    '海南':[110.35,20.02],
+    '黑龙江':[126.63,45.75],
+    '河北':[114.48,38.03],
+    '湖南':[113,28.21],
+    '安徽':[117.27,31.86],
+    '湖北':[114.31,30.52],
+};
+
+var convertData = function (data) {
+    var res = [];
+    for (var i = 0; i < data.length; i++) {
+        var geoCoord = geoCoordMap[data[i].name];
+        if (geoCoord) {
+            res.push({
+                name: data[i].name,
+                value: geoCoord.concat(data[i].value)
+            });
+        }
+    }
+    return res;
+};
+
+option = {
+    title: {
+        text: '',
+        // subtext: 'data from PM25.in',
+        // sublink: 'http://www.pm25.in',
+        left: 'center'
+    },
+    tooltip : {
+        trigger: 'item'
+    },
+    bmap: {
+        center: [104.114129, 37.550339],
+        zoom: 5,
+        roam: true,
+        mapStyle: {
+            styleJson: [{
+                'featureType': 'water',
+                'elementType': 'all',
+                'stylers': {
+                    'color': '#d1d1d1'
+                }
+            }, {
+                'featureType': 'land',
+                'elementType': 'all',
+                'stylers': {
+                    'color': '#f3f3f3'
+                }
+            }, {
+                'featureType': 'railway',
+                'elementType': 'all',
+                'stylers': {
+                    'visibility': 'off'
+                }
+            }, {
+                'featureType': 'highway',
+                'elementType': 'all',
+                'stylers': {
+                    'color': '#fdfdfd'
+                }
+            }, {
+                'featureType': 'highway',
+                'elementType': 'labels',
+                'stylers': {
+                    'visibility': 'off'
+                }
+            }, {
+                'featureType': 'arterial',
+                'elementType': 'geometry',
+                'stylers': {
+                    'color': '#fefefe'
+                }
+            }, {
+                'featureType': 'arterial',
+                'elementType': 'geometry.fill',
+                'stylers': {
+                    'color': '#fefefe'
+                }
+            }, {
+                'featureType': 'poi',
+                'elementType': 'all',
+                'stylers': {
+                    'visibility': 'off'
+                }
+            }, {
+                'featureType': 'green',
+                'elementType': 'all',
+                'stylers': {
+                    'visibility': 'off'
+                }
+            }, {
+                'featureType': 'subway',
+                'elementType': 'all',
+                'stylers': {
+                    'visibility': 'off'
+                }
+            }, {
+                'featureType': 'manmade',
+                'elementType': 'all',
+                'stylers': {
+                    'color': '#d1d1d1'
+                }
+            }, {
+                'featureType': 'local',
+                'elementType': 'all',
+                'stylers': {
+                    'color': '#d1d1d1'
+                }
+            }, {
+                'featureType': 'arterial',
+                'elementType': 'labels',
+                'stylers': {
+                    'visibility': 'off'
+                }
+            }, {
+                'featureType': 'boundary',
+                'elementType': 'all',
+                'stylers': {
+                    'color': '#fefefe'
+                }
+            }, {
+                'featureType': 'building',
+                'elementType': 'all',
+                'stylers': {
+                    'color': '#d1d1d1'
+                }
+            }, {
+                'featureType': 'label',
+                'elementType': 'labels.text.fill',
+                'stylers': {
+                    'color': '#999999'
+                }
+            }]
+        }
+    },
+    series : [
+        {
+            name: 'pm2.5',
+            type: 'scatter',
+            coordinateSystem: 'bmap',
+            data: convertData(data),
+            symbolSize: function (val) {
+                return val[2] / 10;
+            },
+            label: {
+                normal: {
+                    formatter: '{b}',
+                    position: 'right',
+                    show: false
+                },
+                emphasis: {
+                    show: true
+                }
+            },
+            itemStyle: {
+                normal: {
+                    color: 'purple'
+                }
+            }
+        },
+        {
+            name: 'Top 5',
+            type: 'effectScatter',
+            coordinateSystem: 'bmap',
+            data: convertData(data.sort(function (a, b) {
+                return b.value - a.value;
+            }).slice(0, 6)),
+            symbolSize: function (val) {
+                return val[2] / 10;
+            },
+            showEffectOn: 'render',
+            rippleEffect: {
+                brushType: 'stroke'
+            },
+            hoverAnimation: true,
+            label: {
+                normal: {
+                    formatter: '{b}',
+                    position: 'right',
+                    show: true
+                }
+            },
+            itemStyle: {
+                normal: {
+                    color: 'purple',
+                    shadowBlur: 10,
+                    shadowColor: '#333'
+                }
+            },
+            zlevel: 1
+        }
+    ]
+};
+myChart.setOption(option);
+myChart.on('click',function(params){
+    //console.log(params.name);
+    /*
+    console.log(params);
+    console.log(params.seriesName);
+    console.log(params.value);
+    */
+    city_name = params.name;
+    $('#city_message').val(city_name)
+
+    $('#submit_button').click();
+
+    /*
+    $.post('{% url 'weibo:map_action'%}', {'something': city_name,csrfmiddlewaretoken:'{{csrf_token}}'},
+         function(responseData) {
+            // do something else with the responseData, etc
+    });
+    */
+
+});
+$('#reservationtime').daterangepicker({timePicker: true, timePickerIncrement: 30, format: 'MM/DD/YYYY h:mm A'});
+</script>
+
+{% endblock %}

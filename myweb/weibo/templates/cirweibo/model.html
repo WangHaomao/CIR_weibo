@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+{% block head %}
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>社交网络数据平台</title>
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <!-- Bootstrap 3.3.6 -->
+  <link rel="stylesheet" href="../../static/bootstrap/css/bootstrap.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="../../static/style/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="../../static/dist/css/AdminLTE.min.css">
+  <link rel="stylesheet" href="../../static/dist/css/skins/_all-skins.min.css">
+  <link rel="stylesheet" href="../../static/plugins/iCheck/flat/blue.css">
+</head>
+{% endblock %}
+<body class="hold-transition skin-blue sidebar-mini">
+<!--<body class="hold-transition skin-blue sidebar-mini sidebar-collapse">-->
+<div class="wrapper">
+
+  <header class="main-header">
+    <!-- Logo -->
+    <a href="" class="logo">
+      <!-- mini logo for sidebar mini 50x50 pixels -->
+      <span class="logo-mini"><b>精</b>济</span>
+      <!-- logo for regular state and mobile devices -->
+      <span class="logo-lg"><b>精济</b>公司</span>
+    </a>
+    <!-- Header Navbar: style can be found in header.less -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+      <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+        <span class="sr-only">Toggle navigation</span>
+      </a>
+    </nav>
+  </header>
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside class="main-sidebar">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+      <ul class="sidebar-menu">
+        <li class="header">主控面板</li>
+        <li>
+          <a href="{%url 'weibo:map'%}">
+            <i class="fa fa-dashboard"></i> <span>数据显示</span>
+          </a>
+        </li>
+        <li>
+          <a href="{%url 'index'%}">
+            <i class="fa fa-tasks"></i> <span>返回主页</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <!--<section class="content-header">-->
+      <!--<h1>-->
+        <!--仪表盘-->
+        <!--<small>控制面板</small>-->
+      <!--</h1>-->
+      <!--<ol class="breadcrumb">-->
+        <!--<li><a href="#"><i class="fa fa-dashboard"></i> 主页</a></li>-->
+        <!--<li class="active">仪表盘</li>-->
+      <!--</ol>-->
+    <!--</section>-->
+
+    <!-- Main content -->
+    <section class="content">
+      {% block maincontent %}
+
+      {% endblock %}
+    </section>
+    <!-- /.content -->
+
+  </div>
+  <!-- /.content-wrapper -->
+  <footer class="main-footer">
+    <div class="pull-right hidden-xs">
+      <b>Version</b> 2.3.8
+    </div>
+    <strong>Copyright &copy; 2014-2016 <a href="#">CIR</a>.</strong> All rights
+    reserved.
+  </footer>
+
+</div>
+
+
+
+{% block script %}
+<!-- jQuery 2.2.3 -->
+<script src="../../static/plugins/jQuery/jquery-2.2.3.min.js"></script>
+<!-- Bootstrap 3.3.6 -->
+<script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+<!-- AdminLTE App -->
+<script src="../../static/dist/js/app.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="../../static/dist/js/demo.js"></script>
+{% endblock %}
+
+</body>
+</html>
+
